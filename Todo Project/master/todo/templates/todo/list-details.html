@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+<!-- Set title -->
+{% block title %}
+    {{ list.title|title }}
+{% endblock %}
+
+<!-- Actual content -->
+{% block body %}
+<!-- =========================================================================== -->
+<a href={% url 'home' %}>Back</a>
+<div class="row">
+    <div class="col" style="min-width: 250px">
+        <h3>{{ list.title|title }}</h3>
+            {% if list.tasks.all %}
+                {% for task in list.tasks.all|dictsortreversed:'priority'|dictsort:'status' %}
+                    {% if task.status == 'A' %}
+                        {% ifchanged %}
+                        <br>
+                            <h6>Not Started: </h6>
+                        {% endifchanged %}
+                            {% if task.priority == 'D' %}
+                                <a class="list-group-item list-group-item-action list-group-item-danger" href={% url 'task-details' task.id %}>{{ task.title|capfirst }}</a>
+                            {% elif task.priority == 'C' %}
+                                <a class="list-group-item list-group-item-action list-group-item-warning" href={% url 'task-details' task.id %}>{{ task.title|capfirst }}</a>
+                            {% elif task.priority == 'B' %}
+                                <a class="list-group-item list-group-item-action list-group-item-primary" href={% url 'task-details' task.id %}>{{ task.title|capfirst }}</a>
+                            {% else %}
+                                <a class="list-group-item list-group-item-action" href={% url 'task-details' task.id %}>{{ task.title|capfirst }}</a>
+                            {% endif %}
+                    {% elif task.status == 'B' %}
+                        {% ifchanged %}
+                        <br>
+                            <h6>In Progress: </h6>
+                        {% endifchanged %}
+                        {% if task.priority == 'D' %}
+                            <a class="list-group-item list-group-item-action list-group-item-danger" href={% url 'task-details' task.id %}>{{ task.title|capfirst }}</a>
+                        {% elif task.priority == 'C' %}
+                            <a class="list-group-item list-group-item-action list-group-item-warning" href={% url 'task-details' task.id %}>{{ task.title|capfirst }}</a>
+                        {% elif task.priority == 'B' %}
+                            <a class="list-group-item list-group-item-action list-group-item-primary" href={% url 'task-details' task.id %}>{{ task.title|capfirst }}</a>
+                        {% else %}
+                            <a class="list-group-item list-group-item-action" href={% url 'task-details' task.id %}>{{ task.title|capfirst }}</a>
+                        {% endif %}
+                    {% else %}
+                        {% ifchanged %}
+                        <br>
+                            <h6>Completed: </h6>
+                        {% endifchanged %}
+                        <a class="list-group-item list-group-item-action list-group-item-dark" href={% url 'task-details' task.id %}><del>{{ task.title|capfirst }}</del></a>
+                    {% endif %}
+                {% endfor %}
+        {% else %}
+            <p>This list is empty :'(</p>
+        {% endif %}
+        <br>
+    <button type="button" class="btn btn-outline-danger btn-lg btn-block" data-toggle="modal" data-target="#exampleModal" name="button">Delete this list</button>
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">You are about to delete "{{ list.title|title }}" which contains the following items:</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+              <ul>
+                  {% for task in list.tasks.all %}
+                      <li>{{ task.title|capfirst }}</li>
+                  {% endfor %}
+              </ul>
+          </div>
+          <div class="modal-footer">
+            <form method="post" action="{% url 'list-details' list.id %}">
+                {% csrf_token %}
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+                <input type="submit" class="btn btn-outline-primary" name="delete-list" value="Confirm">
+            </form>
+            <!-- <button type="submit" class="btn btn-outline-primary" formmethod="post" action="submit" method="post" name="delete-list">Confirm</button> -->
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="col">
+    <div class="form-group">
+        <h3>Add a New Task</h3>
+        <form class="form-group" enctype="multipart/form-data" action={% url 'list-details' list.id %} method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <input class="btn btn-outline-primary btn-lg btn-block" type="submit" name='create-task' value="Create task">
+        </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- =========================================================================== -->
+{% endblock %}
+
+<!-- class them by category: not started, in progress -->
+<!-- if there are no tasks in the a certain category, don't show the category -->

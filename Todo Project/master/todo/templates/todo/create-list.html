@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+<!-- Set title -->
+{% block title %}
+    List Creation
+{% endblock %}
+
+<!-- Actual content -->
+{% block body %}
+<!-- =========================================================================== -->
+
+<h1>Create a New List</h1>
+    <form class="form-group" method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <input class="btn btn-outline-primary btn-lg btn-block" type="submit" value="Create new list">
+    </form>
+
+<!-- =========================================================================== -->
+{% endblock %}

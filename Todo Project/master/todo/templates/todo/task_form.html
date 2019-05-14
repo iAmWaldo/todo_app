@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+<!-- Set title -->
+{% block title %}
+    {{ task.title|capfirst }}
+{% endblock %}
+
+<!-- Actual content -->
+{% block body %}
+<!-- =========================================================================== -->
+<a href={% url 'list-details' task.list.id %}>Back</a>
+
+<h1>Update Task</h1>
+<form enctype="multipart/form-data" class='form-group' method="POST">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <div class="row">
+        <div class="col-6">
+            <button type="submit" class="btn btn-outline-secondary btn-lg btn-block">Cancel</button>
+        </div>
+        <div class="col-6">
+            <button type="submit" class="btn btn-outline-primary btn-lg btn-block">Update</button>
+        </div>
+    </div>
+</form>
+
+<!-- =========================================================================== -->
+{% endblock %}
